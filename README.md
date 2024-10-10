@@ -3,6 +3,12 @@
 
 This heavily relies on a modified iPATool-PY made by NyaMisty (link here: https://github.com/NyaMisty/ipatool-py)
 
+Features:
+
+• Easier to use
+• Account saving (supports up to 15 accounts)
+• 2FA Support
+
 To run it (on windows):
 Make sure you have Python 3 installed.
 Download the iPATool-EZ from releases
