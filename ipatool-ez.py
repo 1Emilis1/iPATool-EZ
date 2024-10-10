@@ -52,17 +52,16 @@ def download_app():
     app_bundle_id = input("Enter bundle id (or app id) of app: ").strip()
 
     # Determine if it's a bundle ID or app ID
-    id_type = '-i' if app_bundle_id.isdigit() else '-b'
+    id_type = '-b' if not app_bundle_id.isdigit() else '-i'
 
     # Check for temporary password
     temporary_data = selected_account.get("Temporary", {})
     temporary_password = temporary_data.get("Temporary Password")
     expiration_time = temporary_data.get("Expires At")
 
+    # If temporary password is expired, fetch 2FA code
     if temporary_password and expiration_time:
-        if datetime.now() < datetime.strptime(expiration_time, "%Y-%m-%d %H:%M:%S"):
-            print("Using temporary password for download.")
-        else:
+        if datetime.now() >= datetime.strptime(expiration_time, "%Y-%m-%d %H:%M:%S"):
             print("Temporary password has expired.")
             temporary_password = None  # Reset temporary password if expired
 
@@ -114,7 +113,7 @@ def list_accounts():
     return accounts
 
 if __name__ == "__main__":
-    print("iPATool-EZ v1.0.0 by 1Emilis (based on iPATool-PY)")
+    print("iPATool-EZ v1.0.2 (Beta) by 1Emilis (based on iPATool-PY)")
     print("Warning: Passwords are stored in plain text. Keep this script and the JSON files in a secure location.")
     print("\n1. Download an app")
     print("2. Create a new account")
