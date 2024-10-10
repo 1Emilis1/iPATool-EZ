@@ -3,13 +3,15 @@
 
 This heavily relies on a modified iPATool-PY made by NyaMisty (link here: https://github.com/NyaMisty/ipatool-py)
 
-Features:
+Fix macos/linux issues with python2: ln -s /usr/bin/python3 /usr/bin/python
+
+* Features:
 
 • Easier to use
 • Account saving (supports up to 15 accounts)
 • 2FA Support
 
-To run it (on windows):
+* To run it (on windows):
 Make sure you have Python 3 installed.
 Download the iPATool-EZ from releases
 Unzip the iPATool-EZ in a safe place.
@@ -17,7 +19,7 @@ Run install.bat , wait until its installed.
 Run ipatool-ez.bat, setup your account
 Relaunch ipatool-ez.bat and now you can use iPATool-EZ!
 
-To run it (linux, macos)
+* To run it (linux, macos)
 Make sure you have Python 3 installed.
 Download the iPATool-EZ from releases
 Unzip the iPATool-EZ in a safe place.
