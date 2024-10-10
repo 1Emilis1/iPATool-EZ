@@ -2,48 +2,30 @@ import os
 import json
 import subprocess
 import time
+from datetime import datetime, timedelta
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 IPATOOL_PATH = os.path.join(SCRIPT_DIR, 'ipatool-main', 'main.py')
+SAVED_DIR = SCRIPT_DIR  # Store accounts in the same folder as ipatool-ez.py
+
+# Ensure the "saved" directory exists
+os.makedirs(SAVED_DIR, exist_ok=True)
 
 # Function to save account details to a JSON file
 def save_account_to_file(data, filename):
-    with open(filename, 'w') as file:
+    filepath = os.path.join(SAVED_DIR, filename)
+    with open(filepath, 'w') as file:
         json.dump(data, file, indent=4)
-    print(f"Account saved in {filename}.")
+    print(f"Account saved in {filepath}.")
 
 # Function to check if a filename exists, and create new numbered files if needed
 def get_available_filename(base_name="account", max_accounts=15):
     for i in range(1, max_accounts + 1):
         filename = f"{base_name}{i}.json"
-        if not os.path.exists(filename):
+        filepath = os.path.join(SAVED_DIR, filename)
+        if not os.path.exists(filepath):
             return filename
     return None
-
-# Account Setup Function
-def account_setup():
-    apple_id = input("Enter your Apple ID: ")
-    password = input("Enter your Password: ")
-    two_factor = input("Do you have Two-Factor Authentication enabled? (yes/no): ").strip().lower()
-    if two_factor not in ['yes', 'no']:
-        print("Invalid input. Please answer with 'yes' or 'no'.")
-        return account_setup()
-
-    app_store_country = input("What is the App Store country (ex. US, UK): ").strip().upper()
-
-    account_data = {
-        "Apple ID": apple_id,
-        "Password": password,
-        "2FA Enabled": two_factor.capitalize(),
-        "App Store Country": app_store_country
-    }
-
-    filename = get_available_filename()
-
-    if filename:
-        save_account_to_file(account_data, filename)
-    else:
-        print("Account limit reached. You can only save up to 15 accounts.")
 
 # Function to handle downloading apps and 2FA code entry
 def download_app():
@@ -62,7 +44,6 @@ def download_app():
 
     apple_id = selected_account["Apple ID"]
     password = selected_account["Password"]
-    app_store_country = selected_account["App Store Country"]
     two_factor_enabled = selected_account["2FA Enabled"]
 
     print(f"\nSelected Apple ID: {apple_id}")
@@ -71,45 +52,62 @@ def download_app():
     app_bundle_id = input("Enter bundle id (or app id) of app: ").strip()
 
     # Determine if it's a bundle ID or app ID
-    if app_bundle_id.isdigit():
-        id_type = '-i'
-    else:
-        id_type = '-b'
+    id_type = '-i' if app_bundle_id.isdigit() else '-b'
 
-    # First, get the 2FA code using lookup
-    if two_factor_enabled.lower() == 'yes':
-        print("\nFetching 2FA code... (ignore anything)")
+    # Check for temporary password
+    temporary_data = selected_account.get("Temporary", {})
+    temporary_password = temporary_data.get("Temporary Password")
+    expiration_time = temporary_data.get("Expires At")
+
+    if temporary_password and expiration_time:
+        if datetime.now() < datetime.strptime(expiration_time, "%Y-%m-%d %H:%M:%S"):
+            print("Using temporary password for download.")
+        else:
+            print("Temporary password has expired.")
+            temporary_password = None  # Reset temporary password if expired
+
+    # If there's no valid temporary password, fetch 2FA code
+    if two_factor_enabled.lower() == 'yes' and not temporary_password:
+        print("\nFetching 2FA code...")
         command = [
-            'python', IPATOOL_PATH, 'lookup',
-            '-b', 'com.alexfox.camx',  # i want to thank this dev for making a good app
-            '-c', app_store_country,
-            'download', '-e', apple_id, '-p', password
+            'python', IPATOOL_PATH, 'download',  # Use download instead of lookup
+            '-b', 'com.alexfox.camx',  # Example lookup bundle
+            '-e', apple_id,
+            '-p', password
         ]
         subprocess.run(command)
-        print("Please wait, getting 2FA code...")
-        print("")
-        time.sleep(1)
+        time.sleep(5)
 
         two_factor_code = input("Enter the 2FA code: ")
         temporary_password = f"{password}{two_factor_code}"
-    else:
+
+        # Store the temporary password and expiration time in the account data
+        selected_account['Temporary'] = {
+            'Temporary Password': temporary_password,
+            'Expires At': (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")  # Set for 24 hours
+        }
+        save_account_to_file(selected_account, f"account{account_number}.json")
+
+    # Use the original password for downloading if no temporary password is available
+    if not temporary_password:
         temporary_password = password
 
+    # Now, download the app using the temporary password
     print(f"\nDownloading app with {id_type} {app_bundle_id}...")
     command = [
-        'python', IPATOOL_PATH, 'lookup',
+        'python', IPATOOL_PATH, 'download',
         id_type, app_bundle_id,
-        '-c', app_store_country,
-        'download', '-e', apple_id, '-p', temporary_password
+        '-e', apple_id,
+        '-p', temporary_password
     ]
     subprocess.run(command)
 
 def list_accounts():
-    account_files = [f for f in os.listdir(SCRIPT_DIR) if f.startswith('account') and f.endswith('.json')]
+    account_files = [f for f in os.listdir(SAVED_DIR) if f.startswith('account') and f.endswith('.json')]
     account_files = sorted(account_files)
     accounts = []
     for i, file in enumerate(account_files, 1):
-        with open(os.path.join(SCRIPT_DIR, file)) as f:
+        with open(os.path.join(SAVED_DIR, file)) as f:
             data = json.load(f)
         print(f"{i}: {data['Apple ID']}")
         accounts.append((i, file, data))
@@ -125,4 +123,4 @@ if __name__ == "__main__":
     if choice == '1':
         download_app()
     elif choice == '2':
-        account_setup()
+        subprocess.run(['python', 'accountsetup.py'])  # Call accountsetup.py to create a new account
