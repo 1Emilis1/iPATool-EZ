@@ -87,6 +87,7 @@ def download_app():
         ]
         subprocess.run(command)
         print("Please wait, getting 2FA code...")
+        print("")
         time.sleep(1)
 
         two_factor_code = input("Enter the 2FA code: ")
