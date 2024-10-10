@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 # Version and Debug Mode
 version = "1.0.2"
-debug = "true"  # Set to "true" to enable debug mode and print commands
+debug = "false"  # Set to "true" to enable debug mode and print commands
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 IPATOOL_PATH = os.path.join(SCRIPT_DIR, 'ipatool-main', 'main.py')
