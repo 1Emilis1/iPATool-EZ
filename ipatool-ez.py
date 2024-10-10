@@ -4,6 +4,10 @@ import subprocess
 import time
 from datetime import datetime, timedelta
 
+# Version and Debug Mode
+version = "1.0.2"
+debug = "true"  # Set to "true" to enable debug mode and print commands
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 IPATOOL_PATH = os.path.join(SCRIPT_DIR, 'ipatool-main', 'main.py')
 SAVED_DIR = SCRIPT_DIR  # Store accounts in the same folder as ipatool-ez.py
@@ -27,6 +31,12 @@ def get_available_filename(base_name="account", max_accounts=15):
             return filename
     return None
 
+# Function to run commands with optional debug mode
+def run_command(command):
+    if debug == "true":
+        print(f"[DEBUG] Running command: {' '.join(command)}")
+    subprocess.run(command)
+
 # Function to handle downloading apps and 2FA code entry
 def download_app():
     print("# Select account:")
@@ -49,10 +59,7 @@ def download_app():
     print(f"\nSelected Apple ID: {apple_id}")
     print(f"2FA Enabled: {two_factor_enabled}")
 
-    app_bundle_id = input("Enter bundle id (or app id) of app: ").strip()
-
-    # Determine if it's a bundle ID or app ID
-    id_type = '-i' if app_bundle_id.isdigit() else '-b'
+    app_id = input("Enter app id: ").strip()
 
     # Check for temporary password
     temporary_data = selected_account.get("Temporary", {})
@@ -66,16 +73,16 @@ def download_app():
             print("Temporary password has expired.")
             temporary_password = None  # Reset temporary password if expired
 
-    # If there's no valid temporary password, fetch 2FA code
+    # If there's no valid temporary password, fetch 2FA code using app ID "0"
     if two_factor_enabled.lower() == 'yes' and not temporary_password:
         print("\nFetching 2FA code...")
         command = [
-            'python', IPATOOL_PATH, 'download',  # Use download instead of lookup
-            '-b', 'com.alexfox.camx',  # Example lookup bundle
+            'python', IPATOOL_PATH, 'download',
+            '-i', '0',  # Hardcoded app ID "0" for fetching 2FA
             '-e', apple_id,
             '-p', password
         ]
-        subprocess.run(command)
+        run_command(command)
         time.sleep(5)
 
         two_factor_code = input("Enter the 2FA code: ")
@@ -93,15 +100,16 @@ def download_app():
         temporary_password = password
 
     # Now, download the app using the temporary password
-    print(f"\nDownloading app with {id_type} {app_bundle_id}...")
+    print(f"\nDownloading app with app id {app_id}...")
     command = [
         'python', IPATOOL_PATH, 'download',
-        id_type, app_bundle_id,
+        '-i', app_id,
         '-e', apple_id,
         '-p', temporary_password
     ]
-    subprocess.run(command)
+    run_command(command)
 
+# Function to list available accounts
 def list_accounts():
     account_files = [f for f in os.listdir(SAVED_DIR) if f.startswith('account') and f.endswith('.json')]
     account_files = sorted(account_files)
@@ -114,7 +122,7 @@ def list_accounts():
     return accounts
 
 if __name__ == "__main__":
-    print("iPATool-EZ v1.0.0 by 1Emilis (based on iPATool-PY)")
+    print(f"iPATool-EZ v{version} by 1Emilis (based on iPATool-PY)")
     print("Warning: Passwords are stored in plain text. Keep this script and the JSON files in a secure location.")
     print("\n1. Download an app")
     print("2. Create a new account")
