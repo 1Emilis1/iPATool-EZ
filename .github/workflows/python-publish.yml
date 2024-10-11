@@ -18,7 +18,7 @@ permissions:
 jobs:
   deploy:
 
-    runs-on: ubuntu-latest windows
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
