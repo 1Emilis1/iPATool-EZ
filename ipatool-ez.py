@@ -154,9 +154,17 @@ def download_app():
 
     temporary_data = selected_account.get("Temporary", {})
     temporary_password = temporary_data.get("Temporary Password")
-    expiration_time = temporary_data.get("Expires At")
+    expiration_time_str = temporary_data.get("Expires At")
 
-    if not temporary_password or (datetime.now() > expiration_time):
+    if temporary_password and expiration_time_str:
+        expiration_time = datetime.strptime(expiration_time_str, "%Y-%m-%d %H:%M:%S")  # Convert string to datetime
+        if datetime.now() < expiration_time:
+            print("Using temporary password for download.")
+        else:
+            print("Temporary password has expired.")
+            temporary_password = None  # Reset temporary password if expired
+
+    if two_factor_enabled.lower() == 'yes' and not temporary_password:
         print("\nFetching 2FA code...")
         command = [
             'python', IPATOOL_PATH, 'download',
