@@ -7,7 +7,7 @@ import requests
 import zipfile
 import shutil
 
-version = "1.1.0beta1"
+version = "1.1.0beta2"
 debug = "false"
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -129,6 +129,70 @@ def run_command(command):
         print(f"[DEBUG] Running command: {' '.join(command)}")
     subprocess.run(command)
 
+def account_utility():
+    print("# Select account:")
+    accounts = list_accounts()
+    if not accounts:
+        print("No accounts available.")
+        return
+
+    try:
+        account_number = int(input("\nEnter account number: "))
+        selected_account = accounts[account_number - 1][2]
+    except (ValueError, IndexError):
+        print("Invalid account number.")
+        return
+
+    apple_id = selected_account["Apple ID"]
+    password = selected_account["Password"]
+
+    while True:
+        print("\nAccount Utility for:", apple_id)
+        print("1. Change Password")
+        print("2. Enter 2FA Code")
+        print("3. Revoke Auto 2FA Password (Not Recommended)")
+        print("4. Remove Account")
+        print("5. Exit")
+
+        utility_choice = input("Choose an option (1/2/3/4/5): ")
+
+        if utility_choice == "1":
+            new_password = input("Enter your new password: ")
+            selected_account["Password"] = new_password
+            save_account_to_file(selected_account, f"account{account_number}.json")
+            print("Password updated.")
+
+        elif utility_choice == "2":
+            print("Get 2FA Code from going onto an Apple device. Go to settings > Apple Account > Sign-In & Security > Two-Factor Authentication > Get Verification Code.")
+            two_factor_code = input("Enter the 2FA code: ")
+            temporary_password = f"{password}{two_factor_code}"
+            selected_account['Temporary'] = {
+                'Temporary Password': temporary_password,
+                'Expires At': (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
+            }
+            save_account_to_file(selected_account, f"account{account_number}.json")
+            print("2FA code entered and temporary password updated.")
+
+        elif utility_choice == "3":
+            print("Revoking Auto 2FA Password...")
+            if "Temporary" in selected_account:
+                del selected_account["Temporary"]
+                save_account_to_file(selected_account, f"account{account_number}.json")
+                print("Auto 2FA password revoked.")
+
+        elif utility_choice == "4":
+            confirm = input("Are you sure you want to remove this account? (y/n): ").lower()
+            if confirm == "y":
+                os.remove(os.path.join(SAVED_DIR, f"account{account_number}.json"))
+                print("Account removed.")
+                return  # Exit to darkness
+
+        elif utility_choice == "5":
+            return  # Exit the utility into darkness, spooky
+
+        else:
+            print("Invalid option. Please try again.")
+
 def download_app():
     print("# Select account:")
     accounts = list_accounts()
@@ -157,12 +221,12 @@ def download_app():
     expiration_time_str = temporary_data.get("Expires At")
 
     if temporary_password and expiration_time_str:
-        expiration_time = datetime.strptime(expiration_time_str, "%Y-%m-%d %H:%M:%S")  # Convert string to datetime
+        expiration_time = datetime.strptime(expiration_time_str, "%Y-%m-%d %H:%M:%S")
         if datetime.now() < expiration_time:
             print("Using temporary password for download.")
         else:
             print("Temporary password has expired.")
-            temporary_password = None  # Reset temporary password if expired
+            temporary_password = None
 
     if two_factor_enabled.lower() == 'yes' and not temporary_password:
         print("\nFetching 2FA code...")
@@ -183,6 +247,7 @@ def download_app():
             'Expires At': (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
         }
         save_account_to_file(selected_account, f"account{account_number}.json")
+        print("2FA code entered. Temporary password is valid for 24 hours.")
 
     if not temporary_password:
         temporary_password = password
@@ -209,14 +274,18 @@ def list_accounts():
 
 if __name__ == "__main__":
     print(f"iPATool-EZ v{version} by 1Emilis (based on iPATool-PY)")
+    print("Warning: Passwords are stored in plain text. Keep this script and the JSON files in a secure location.")
     print("\n1. Download an app")
     print("2. Create a new account")
-    print("3. Check for Updates")
-    choice = input("Choose an option (1/2/3): ")
+    print("3. Account Utility")
+    print("4. Check for Updates")
+    choice = input("Choose an option (1/2/3/4): ")
 
     if choice == '1':
         download_app()
     elif choice == '2':
         subprocess.run(['python', 'accountsetup.py'])
     elif choice == '3':
+        account_utility()
+    elif choice == '4':
         handle_update()
