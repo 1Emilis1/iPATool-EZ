@@ -7,7 +7,7 @@ import requests
 import zipfile
 import shutil
 
-version = "1.1.0beta3"
+version = "1.1.0RC"
 debug = "false" # set to true for debugging
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
