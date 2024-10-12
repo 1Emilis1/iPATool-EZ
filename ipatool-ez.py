@@ -7,7 +7,7 @@ import requests
 import zipfile
 import shutil
 
-version = "1.1.0beta2"
+version = "1.1.0beta3"
 debug = "false"
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -33,15 +33,21 @@ def check_for_updates():
     latest_release = None
     latest_beta = None
 
+    current_version = version.lower()
+
     for release in releases:
         release_name = release['name'].lower().replace(' ', '')
-        if not release['prerelease']:
-            if latest_release is None or release_name > latest_release['name'].lower():
+
+        # Compare main release versions
+        if not release['prerelease'] and 'beta' not in release_name:
+            if latest_release is None or release_name > latest_release['name'].lower().replace(' ', ''):
                 latest_release = release
-        elif release['prerelease']:
-            if latest_beta is None or release_name > latest_beta['name'].lower():
+
+        # Compare beta versions (including version numbers like 1.1.0beta1, 1.1.0beta2, etc.)
+        elif release['prerelease'] and 'beta' in release_name:
+            if latest_beta is None or release_name > latest_beta['name'].lower().replace(' ', ''):
                 latest_beta = release
-    
+
     return latest_release, latest_beta
 
 def update_script(release):
