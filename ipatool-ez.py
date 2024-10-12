@@ -7,8 +7,8 @@ import requests
 import zipfile
 import shutil
 
-version = "1.1.0RC"
-debug = "false" # set to true for debugging
+version = "1.1.0rc2"
+debug = "false"
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 IPATOOL_PATH = os.path.join(SCRIPT_DIR, 'ipatool-main', 'main.py')
@@ -32,23 +32,29 @@ def check_for_updates():
     releases = response.json()
     latest_release = None
     latest_beta = None
+    latest_rc = None
 
-    current_version = version.lower()
+    current_version = version.lower().replace(" ", "")
 
     for release in releases:
         release_name = release['name'].lower().replace(' ', '')
 
         # Compare main release versions
-        if not release['prerelease'] and 'beta' not in release_name:
+        if not release['prerelease'] and 'beta' not in release_name and 'releasecandidate' not in release_name:
             if latest_release is None or release_name > latest_release['name'].lower().replace(' ', ''):
                 latest_release = release
 
-        # Compare beta versions (including version numbers like 1.1.0beta1, 1.1.0beta2, etc.)
-        elif release['prerelease'] and 'beta' in release_name:
+        # Compare beta versions
+        elif 'beta' in release_name:
             if latest_beta is None or release_name > latest_beta['name'].lower().replace(' ', ''):
                 latest_beta = release
 
-    return latest_release, latest_beta
+        # Compare RC versions
+        elif 'releasecandidate' in release_name or 'rc' in release_name:
+            if latest_rc is None or release_name > latest_rc['name'].lower().replace(' ', ''):
+                latest_rc = release
+
+    return latest_release, latest_beta, latest_rc
 
 def update_script(release):
     zip_url = release['zipball_url']
@@ -90,46 +96,65 @@ def update_script(release):
     print("Update complete. Restart the script to apply changes.")
 
 def handle_update():
-    latest_release, latest_beta = check_for_updates()
+    latest_release, latest_beta, latest_rc = check_for_updates()
 
-    if latest_release is None:
+    if latest_release is None and latest_beta is None and latest_rc is None:
         print("Could not fetch latest releases.")
         return
 
-    current_version = version.lower()
+    print(f"Current version: {version}")
 
-    print(f"Current version: {current_version}")
-    
-    if "beta" in current_version:
-        if latest_beta and latest_beta['name'].lower().replace(' ', '') > current_version:
+    # If on a beta or RC version
+    if "beta" in version.lower() or "rc" in version.lower():
+        # Check if a newer beta version is available
+        if latest_beta and latest_beta['name'].lower().replace(' ', '') > version.lower().replace(' ', ''):
             print(f"New beta version available: {latest_beta['name']}")
-        if latest_release and latest_release['name'].lower().replace(' ', '') > current_version:
+
+        # Check if a newer RC version is available
+        if latest_rc and latest_rc['name'].lower().replace(' ', '') > version.lower().replace(' ', ''):
+            print(f"New RC version available: {latest_rc['name']}")
+        else:
+            print("You are already on the latest RC version.")
+
+        # Check if the main release is newer than the current beta or RC version
+        if latest_release and latest_release['name'].lower().replace(' ', '') > version.lower().replace('beta', '').replace('rc', '').strip():
             print(f"New main version available: {latest_release['name']}")
-        
+
         print("\nUpdate options:")
         print("1. Update to the latest beta version")
-        print("2. Switch to the latest main release")
-        print("3. Cancel update")
+        print("2. Update to the latest RC version")
+        print("3. Switch to the latest main release")
+        print("4. Cancel update")
 
-        choice = input("Choose an option (1/2/3): ")
-        if choice == "1" and latest_beta and latest_beta['name'].lower().replace(' ', '') > current_version:
+        choice = input("Choose an option (1/2/3/4): ")
+        if choice == "1" and latest_beta:
             update_script(latest_beta)
-        elif choice == "2" and latest_release and latest_release['name'].lower().replace(' ', '') > current_version:
+        elif choice == "2" and latest_rc and latest_rc['name'].lower().replace(' ', '') > version.lower().replace(' ', ''):
+            update_script(latest_rc)
+        elif choice == "3" and latest_release:
             update_script(latest_release)
         else:
             print("No update performed.")
-    
+
+    # If on a main release
     else:
-        if latest_release and latest_release['name'].lower().replace(' ', '') > current_version:
+        if latest_release and latest_release['name'].lower().replace(' ', '') > version.lower().replace(' ', ''):
             print(f"New main version available: {latest_release['name']}")
             choice = input("Do you want to update to the latest main release? (y/n): ")
             if choice.lower() == "y":
                 update_script(latest_release)
             else:
                 print("No update performed.")
+        
+        # Check if a newer beta version is available
+        if latest_beta and latest_beta['name'].lower().replace(' ', '') > version.lower().replace(' ', ''):
+            print(f"New beta version available: {latest_beta['name']}")
+            choice = input("Do you want to update to the latest beta version? (y/n): ")
+            if choice.lower() == "y":
+                update_script(latest_beta)
+
         else:
             print("You are already on the latest version.")
-
 def run_command(command):
     if debug == "true":
         print(f"[DEBUG] Running command: {' '.join(command)}")
