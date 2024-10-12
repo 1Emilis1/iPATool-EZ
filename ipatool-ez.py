@@ -12,6 +12,7 @@ debug = "false"
 
 # not verified
 
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 IPATOOL_PATH = os.path.join(SCRIPT_DIR, 'ipatool-main', 'main.py')
 SAVED_DIR = SCRIPT_DIR
