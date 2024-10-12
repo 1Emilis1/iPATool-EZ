@@ -10,7 +10,7 @@ import shutil
 version = "1.1.0"
 debug = "false"
 
-# not verified
+#verify
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 IPATOOL_PATH = os.path.join(SCRIPT_DIR, 'ipatool-main', 'main.py')
