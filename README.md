@@ -6,8 +6,13 @@ This heavily relies on a modified iPATool-PY made by NyaMisty (link here: https:
 Features:
 
 1. Easier to use
-2. Account saving (supports up to 15 accounts)
+2. Account saving (supports up to 20 accounts)
 3. 2FA Support
+
+Missing Features:
+
+1. App Downgrading
+2. Family Sharing Support (this needs to be implemented in ipatool-py)
 
 To run it (on windows):
 1. Make sure you have Python 3 installed.
