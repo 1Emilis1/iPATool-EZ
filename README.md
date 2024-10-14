@@ -12,7 +12,8 @@ Features:
 Missing Features:
 
 1. App Downgrading
-2. Family Sharing Support (this needs to be implemented in ipatool-py)
+2. More features..? pls
+3. GUI Version (maybe iPATool-EZ 2.0.0?)
 
 To run it (on windows):
 1. Make sure you have Python 3 installed.
