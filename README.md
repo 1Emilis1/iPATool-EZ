@@ -44,12 +44,12 @@ After setting up your account, you can use iPATool-EZ to:
 If you intend to share IPA files with other people, you need to decrypt the IPAs using a jailbroken iOS device (or a non-jailbroken one if you have trollstore), IPAs downloaded with this tool come encrypted.
 
 ## Where do I find App IDs?
-- you can by going to [Sensor tower](https://app.sensortower.com/) (search for the app you want and once you find it the ID should be in the URL)
+- you can by going to [Sensor tower](https://app.sensortower.com/) (search for the app you want and once you find it the ID should be in the URL), also, you must own the app on your Apple ID (downloaded it once) in order to download the app off of the tool
 
 ## Troubleshooting
 - if you have issues with install the libraries, you can install them manually by saying `py -m pip install rich requests` on Windows, and by saying `pip3 install rich requests` on macOS & Linux
 - If you encounter issues with logging in, make sure your Apple ID credentials are correct
-- For 2FA issues, make sure you enter the verification code correctly when prompted, if the code doesn’t pop up you can get it manually through the settings
+- For 2FA issues, make sure you enter the verification code correctly when prompted, if the code doesn’t pop up you can get it manually through your iPhone/iPad's settings
 
 ## Contributions
 Contributions to this project are welcome, Feel free to submit issues or pull requests if you have anything to say
