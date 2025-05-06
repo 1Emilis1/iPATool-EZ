@@ -21,21 +21,19 @@ This project heavily relies on a modified version of [iPATool-PY](https://github
 
 ### Windows
 1. Ensure Python 3+ is installed on your system
-2. make sure to install the `requests` and the `rich` python libraries by saying `py -m pip install rich requests`
-3. Download the latest iPATool-EZ version from the [Releases](https://github.com/1Emilis1/iPATool-EZ/releases)
-4. Unzip the package
-5. Run `install.bat` and wait for the installation to complete
-6. Run `ipatool-ez.bat` to set up your Apple ID account
-7. Relaunch `ipatool-ez.bat` to start using iPATool-EZ
+2. Download the latest iPATool-EZ version from the [Releases](https://github.com/1Emilis1/iPATool-EZ/releases)
+3. Unzip the package
+4. Run `install.bat` and wait for the installation to complete
+5. Run `ipatool-ez.bat` to set up your Apple ID account
+6. Relaunch `ipatool-ez.bat` to start using iPATool-EZ
 
 ### macOS & Linux
 1. Ensure Python 3+ is installed on your system
-2. make sure to install the `requests` and the `rich` python libraries by saying `pip3 install rich requests`
-3. Download the latest iPATool-EZ version from the [Releases](https://github.com/1Emilis1/iPATool-EZ/releases)
-4. Unzip the package
-5. Run `install.sh` to install the required dependencies
-6. Run `ipatool-ez.sh` and select "Create account" to set up your Apple ID
-7. Relaunch `ipatool-ez.sh` to start downloading IPAs
+2. Download the latest iPATool-EZ version from the [Releases](https://github.com/1Emilis1/iPATool-EZ/releases)
+3. Unzip the package
+4. Run `install.sh` to install the required dependencies
+5. Run `ipatool-ez.sh` and select "Create account" to set up your Apple ID
+6. Relaunch `ipatool-ez.sh` to start downloading IPAs
 
 ## Usage
 After setting up your account, you can use iPATool-EZ to:
@@ -49,6 +47,7 @@ If you intend to share IPA files with other people, you need to decrypt the IPAs
 - you can by going to [Sensor tower](https://app.sensortower.com/) (search for the app you want and once you find it the ID should be in the URL)
 
 ## Troubleshooting
+- if you have issues with install the libraries, you can install them manually by saying `py -m pip install rich requests` on Windows, and by saying `pip3 install rich requests` on macOS & Linux
 - If you encounter issues with logging in, make sure your Apple ID credentials are correct
 - For 2FA issues, make sure you enter the verification code correctly when prompted, if the code doesn’t pop up you can get it manually through the settings
 
