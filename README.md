@@ -1,36 +1,60 @@
 # iPATool-EZ
- iPATool-PY, but easier!
 
-This heavily relies on a modified iPATool-PY made by NyaMisty (link here: https://github.com/NyaMisty/ipatool-py)
+## Overview
+iPATool-EZ is a user-friendly tool for downloading and managing iOS application packages (IPAs), It's designed to be an easier-to-use version of iPATool-PY, providing a great experience for downloading apps from the App Store, and also for downloading delisted apps (or by other terms shadowbanned apps)
 
-Features:
+This project heavily relies on a modified version of [iPATool-PY](https://github.com/NyaMisty/ipatool-py) created by NyaMisty, credits to her.
 
-1. Easier to use
-2. Account saving (supports up to 20 accounts)
-3. 2FA Support
+## Features
 
-Missing Features:
+### Current Features
+- Simpler user interface
+- Good Account management (supports up to 20 Apple IDs)
+- 2FA support
 
-1. App Downgrading
-2. More features..? pls
-3. GUI Version (maybe iPATool-EZ 2.0.0?)
+### Planned Features
+- Version Downgrading
+- Additional features (suggestions welcome)
+- GUI (maybe coming in iPATool-EZ 2.0.0)
 
-To run it (on windows):
-1. Make sure you have Python 3 installed.
-2. Download the iPATool-EZ from releases
-3. Unzip the iPATool-EZ in a safe place.
-4. Run install.bat , wait until its installed.
-5. Run ipatool-ez.bat, setup your account
-6. Relaunch ipatool-ez.bat and now you can use iPATool-EZ!
+## Installation
 
-To run it (linux, macos)
-1. Make sure you have Python 3 installed.
-2. Download the iPATool-EZ from releases (it should be iPATool-EZ_1.1.1-linux_macos.zip)
-3. Unzip the iPATool-EZ in a safe place.
-4. Run install.sh to install the required files.
-5. Now run ipatool-ez.sh and click create account.
-6. Setup your account, run ipatool-ez.sh again and get your ipa's!
+### Windows
+1. Ensure Python 3+ is installed on your system
+2. Download the latest iPATool-EZ version from the [Releases](https://github.com/1Emilis1/iPATool-EZ/releases)
+3. Unzip the package
+4. Run `install.bat` and wait for the installation to complete
+5. Run `ipatool-ez.bat` to set up your Apple ID account
+6. Relaunch `ipatool-ez.bat` to start using iPATool-EZ
+
+### macOS & Linux
+1. Ensure Python 3+ is installed on your system
+2. Download the latest iPATool-EZ version from the [Releases](https://github.com/1Emilis1/iPATool-EZ/releases)
+3. Unzip the package
+4. Run `install.sh` to install the required dependencies
+5. Run `ipatool-ez.sh` and select "Create account" to set up your Apple ID
+6. Relaunch `ipatool-ez.sh` to start downloading IPAs
+
+## Usage
+After setting up your account, you can use iPATool-EZ to:
+- Download apps from the App Store or download delisted apps using your Apple ID
+- Manage multiple Apple IDs
+
+## Important Note
+If you intend to share IPA files with other people, you need to decrypt the IPAs using a jailbroken iOS device (or a non-jailbroken one if you have trollstore), IPAs downloaded with this tool come encrypted.
+
+## Where do I find App IDs?
+- you can by going to [Sensor tower](https://app.sensortower.com/) (search for the app you want and once you find it the ID should be in the URL)
+
+## Troubleshooting
+- if you have issues with install the libraries, you can install them manually by saying `py -m pip install rich requests` on Windows, and by saying `pip3 install rich requests` on macOS & Linux
+- If you encounter issues with logging in, make sure your Apple ID credentials are correct
+- For 2FA issues, make sure you enter the verification code correctly when prompted, if the code doesn’t pop up you can get it manually through the settings
+
+## Contributions
+Contributions to this project are welcome, Feel free to submit issues or pull requests if you have anything to say
+
+## Disclaimer
+This tool is for personal use only, We do not take any responsibility for any actions or consequences that may arise from downloading, or using the extracted applications, This tool is not affiliated with, endorsed by, or sponsored by Apple Inc.
 
 Happy extracting!
-
-(If you want to share ipas with other people you need to dump the ipas with a jailbroken idevice)
