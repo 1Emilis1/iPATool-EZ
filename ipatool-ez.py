@@ -7,10 +7,10 @@ import requests
 import zipfile
 import shutil
 
-version = "1.1.0"
+version = "1.1.1"
 debug = "false"
 
-# not verified
+# beta branch
 
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))

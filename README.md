@@ -19,13 +19,11 @@ To run it (on windows):
 
 To run it (linux, macos)
 1. Make sure you have Python 3 installed.
-2. Download the iPATool-EZ from releases
+2. Download the iPATool-EZ from releases (it should be iPATool-EZ_1.1.1-linux_macos.zip)
 3. Unzip the iPATool-EZ in a safe place.
-4. Go to ipatool-main and launch terminal.
-5. From there type: pip install -r requirements.txt
-6. Now go back to the directory of iPATool-EZ and run: py ipatool-ez.py
-7. Setup your account, run py ipatool-ez.py again and get your ipa's!
-8. If you are having problems, run sh linux_fix.sh
+4. Run install.sh to install the required files.
+5. Now run ipatool-ez.sh and click create account.
+6. Setup your account, run ipatool-ez.sh again and get your ipa's!
 
 Happy extracting!
 
