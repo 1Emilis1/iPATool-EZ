@@ -7,10 +7,11 @@ import requests
 import zipfile
 import shutil
 
-version = "1.1.0"
+version = "1.1.1"
 debug = "false"
 
 #verify
+#dont touch the update script cuz its a mess and i dont want to deal with it
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 IPATOOL_PATH = os.path.join(SCRIPT_DIR, 'ipatool-main', 'main.py')
@@ -257,7 +258,7 @@ def download_app():
     if two_factor_enabled.lower() == 'yes' and not temporary_password:
         print("\nFetching 2FA code...")
         command = [
-            'python', IPATOOL_PATH, 'download',
+            'python3', IPATOOL_PATH, 'download',
             '-i', '0',
             '-e', apple_id,
             '-p', password
@@ -280,7 +281,7 @@ def download_app():
 
     print(f"\nDownloading app with app id {app_id}...")
     command = [
-        'python', IPATOOL_PATH, 'download',
+        'python3', IPATOOL_PATH, 'download',
         '-i', app_id,
         '-e', apple_id,
         '-p', temporary_password
@@ -310,7 +311,7 @@ if __name__ == "__main__":
     if choice == '1':
         download_app()
     elif choice == '2':
-        subprocess.run(['python', 'accountsetup.py'])
+        subprocess.run(['python3', 'accountsetup.py'])
     elif choice == '3':
         account_utility()
     elif choice == '4':
