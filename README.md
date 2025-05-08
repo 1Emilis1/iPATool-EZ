@@ -54,6 +54,9 @@ If you intend to share IPA files with other people, you need to decrypt the IPAs
 ## Contributions
 Contributions to this project are welcome, Feel free to submit issues or pull requests if you have anything to say
 
+## License
+iPATool-EZ is licensed under **AGPL-3.0**, See [`LICENSE`](LICENSE) for more details
+
 ## Disclaimer
 This tool is for personal use only, We do not take any responsibility for any actions or consequences that may arise from downloading, or using the extracted applications, This tool is not affiliated with, endorsed by, or sponsored by Apple Inc.
 
