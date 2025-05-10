@@ -41,13 +41,13 @@ After setting up your account, you can use iPATool-EZ to:
 - Manage multiple Apple IDs
 
 ## Important Note
-If you intend to share IPA files with other people, you need to decrypt the IPAs using a jailbroken iOS device (or a non-jailbroken one if you have trollstore), IPAs downloaded with this tool come encrypted.
+If you intend to share IPA files with other people, you need to decrypt the IPAs using a jailbroken iOS device (or a non-jailbroken one if you have trollstore), IPAs downloaded with this tool come encrypted
 
 ## Where do I find App IDs?
 - You can by going to [Sensor tower](https://app.sensortower.com/) (Search for the app you want and once you find it the ID should be in the URL) (You also need to own the app, check for it in purchase history on your device)
 
 ## Troubleshooting
-- if you have issues with install the libraries, you can install them manually by saying `py -m pip install rich requests` on Windows, and by saying `pip3 install rich requests` on macOS & Linux
+- if you have issues with installing the python libraries, try to install them manually by saying `py -m pip install rich requests` on Windows, or by saying `pip3 install rich requests` on macOS & Linux
 - If you encounter issues with logging in, make sure your Apple ID credentials are correct
 - For 2FA issues, make sure you enter the verification code correctly when prompted, if the code doesn’t pop up you can get it manually through your iPhone/iPad's settings
 
@@ -58,6 +58,7 @@ Contributions to this project are welcome, Feel free to submit issues or pull re
 iPATool-EZ is licensed under **AGPL-3.0**, See [`LICENSE`](LICENSE) for more details
 
 ## Disclaimer
-This tool is for personal use only, We do not take any responsibility for any actions or consequences that may arise from downloading, or using the extracted applications, This tool is not affiliated with, endorsed by, or sponsored by Apple Inc.
+>[!WARNING]
+> This tool is for personal use only, We do not take any responsibility for any actions or consequences that may arise from downloading, or using the extracted applications, This tool is not affiliated with, endorsed by, or sponsored by Apple Inc.
 
 Happy extracting!
