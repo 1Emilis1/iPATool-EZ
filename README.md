@@ -41,7 +41,7 @@ After setting up your account, you can use iPATool-EZ to:
 - Manage multiple Apple IDs
 
 ## Important Note
-If you intend to share IPA files with other people, you need to decrypt the IPAs using a jailbroken iOS device (or a non-jailbroken one if you have trollstore), IPAs downloaded with this tool come encrypted
+If you intend to share IPA files with other people, you need to decrypt the IPAs using a jailbroken iOS device (or a non-jailbroken one if you have trollstore), IPAs downloaded with this tool come encrypted.
 
 ## Where do I find App IDs?
 - You can by going to [Sensor tower](https://app.sensortower.com/) (Search for the app you want and once you find it the ID should be in the URL) (You also need to own the app, check for it in purchase history on your device)
