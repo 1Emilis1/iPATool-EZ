@@ -1,5 +1,5 @@
 # iPATool-EZ
-
+<meta name="google-site-verification" content="GMkUG5O_u4Zqrgt88wh2I-YKM4kX3nc2Py_FIVyQdDI" />
 ## Overview
 iPATool-EZ is a user-friendly tool for downloading and managing iOS application packages (IPAs), It's designed to be an easier-to-use version of iPATool-PY, providing a great experience for downloading apps from the App Store, and also for downloading delisted apps (or by other terms shadowbanned apps)
 
