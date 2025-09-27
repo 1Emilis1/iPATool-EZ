@@ -6,21 +6,37 @@ from datetime import datetime, timedelta
 import requests
 import zipfile
 import shutil
+import sys
 
-version = "1.1.1"
+version = "1.2.0beta1"
 debug = "false"
 
-# beta branch
+#beta
+
+# identify the os
+if os.name == 'nt':
+    # windows
+    clear = 'cls'
+    python = 'python'
+    operatingsystem = 'Windows'
+else:
+    # linux/mac
+    clear = 'clear'
+    python = 'python3'
+    operatingsystem = 'Linux/Mac'
+
 
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 IPATOOL_PATH = os.path.join(SCRIPT_DIR, 'ipatool-main', 'main.py')
-SAVED_DIR = SCRIPT_DIR
+SAVED_DIR = os.path.join(SCRIPT_DIR, "accounts")
 GITHUB_API_URL = "https://api.github.com/repos/1Emilis1/iPATool-EZ/releases"
+NEW_PAGE_URL = "https://site.com/"
 
 os.makedirs(SAVED_DIR, exist_ok=True)
 
 def save_account_to_file(data, filename):
+    # Always save to accounts folder
     filepath = os.path.join(SAVED_DIR, filename)
     with open(filepath, 'w') as file:
         json.dump(data, file, indent=4)
@@ -56,8 +72,9 @@ def check_for_updates():
                 latest_beta = release
 
     return latest_release, latest_beta
+# i forgor how this works
 
-def handle_update():
+def handle_update_legacy():
     latest_release, latest_beta = check_for_updates()
 
     if latest_release is None and latest_beta is None:
@@ -112,6 +129,7 @@ def handle_update():
         else:
             print("You are already on the latest version.")
 
+#dont touch, but i will fix this once last beta is released
 def update_script(release):
     zip_url = release['zipball_url']
     print(f"Downloading update from {zip_url}...")
@@ -155,8 +173,10 @@ def run_command(command):
     if debug == "true":
         print(f"[DEBUG] Running command: {' '.join(command)}")
     subprocess.run(command)
-
+# when did i change account utility, i guess it was for the "enhanced 2fa+"
 def account_utility():
+    os.system(clear)
+    print(f"iPATool-EZ v{version} by 1Emilis (based on iPATool-PY)")
     print("# Select account:")
     accounts = list_accounts()
     if not accounts:
@@ -166,6 +186,7 @@ def account_utility():
     try:
         account_number = int(input("\nEnter account number: "))
         selected_account = accounts[account_number - 1][2]
+        account_file = accounts[account_number - 1][1]
     except (ValueError, IndexError):
         print("Invalid account number.")
         return
@@ -174,54 +195,52 @@ def account_utility():
     password = selected_account["Password"]
 
     while True:
+        os.system(clear)
+        print(f"iPATool-EZ v{version} by 1Emilis (based on iPATool-PY)")
         print("\nAccount Utility for:", apple_id)
         print("1. Change Password")
-        print("2. Enter 2FA Code")
-        print("3. Revoke Auto 2FA Password (Not Recommended)")
-        print("4. Remove Account")
-        print("5. Exit")
+        print("2. Change Country")
+        print("3. Remove Account")
+        print("4. Exit")
 
         utility_choice = input("Choose an option (1/2/3/4/5): ")
 
         if utility_choice == "1":
             new_password = input("Enter your new password: ")
             selected_account["Password"] = new_password
-            save_account_to_file(selected_account, f"account{account_number}.json")
+            save_account_to_file(selected_account, account_file)
             print("Password updated.")
+            return  # just boom
 
         elif utility_choice == "2":
-            print("Get 2FA Code from going onto an Apple device. Go to settings > Apple Account > Sign-In & Security > Two-Factor Authentication > Get Verification Code.")
-            two_factor_code = input("Enter the 2FA code: ")
-            temporary_password = f"{password}{two_factor_code}"
-            selected_account['Temporary'] = {
-                'Temporary Password': temporary_password,
-                'Expires At': (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
-            }
-            save_account_to_file(selected_account, f"account{account_number}.json")
-            print("2FA code entered and temporary password updated.")
+            # why was this so hard??
+            new_country = input("Enter new country code (2 letters, e.g., US, UK): ").strip().upper()
+            if len(new_country) == 2 and new_country.isalpha():
+                selected_account["Country"] = new_country
+                save_account_to_file(selected_account, account_file)
+                print(f"Country updated to {new_country}.")
+            else:
+                print("Invalid country code. Please enter exactly 2 letters.")
+            input("Press Enter to continue...")
+            return
 
         elif utility_choice == "3":
-            print("Revoking Auto 2FA Password...")
-            if "Temporary" in selected_account:
-                del selected_account["Temporary"]
-                save_account_to_file(selected_account, f"account{account_number}.json")
-                print("Auto 2FA password revoked.")
-
-        elif utility_choice == "4":
             confirm = input("Are you sure you want to remove this account? (y/n): ").lower()
             if confirm == "y":
-                os.remove(os.path.join(SAVED_DIR, f"account{account_number}.json"))
+                os.remove(os.path.join(SAVED_DIR, account_file))
                 print("Account removed.")
-                return  # Exit to darkness
+                os.execv(sys.executable, [sys.executable] + sys.argv)
 
-        elif utility_choice == "5":
-            return  # Exit the utility into darkness, spooky
+        elif utility_choice == "4":
+            os.execv(sys.executable, [sys.executable] + sys.argv)
 
         else:
             print("Invalid option. Please try again.")
 
 def download_app():
-    print("# Select account:")
+    os.system(clear)
+    print(f"iPATool-EZ v{version} by 1Emilis (based on iPATool-PY)")
+    print("\n# Select account:")
     accounts = list_accounts()
     if not accounts:
         print("No accounts available.")
@@ -230,6 +249,7 @@ def download_app():
     try:
         account_number = int(input("\nEnter account number: "))
         selected_account = accounts[account_number - 1][2]
+        account_file = accounts[account_number - 1][1]
     except (ValueError, IndexError):
         print("Invalid account number.")
         return
@@ -237,58 +257,35 @@ def download_app():
     apple_id = selected_account["Apple ID"]
     password = selected_account["Password"]
     two_factor_enabled = selected_account["2FA Enabled"]
-
+    os.system(clear)
+    print(f"iPATool-EZ v{version} by 1Emilis (based on iPATool-PY)")
     print(f"\nSelected Apple ID: {apple_id}")
     print(f"2FA Enabled: {two_factor_enabled}")
 
-    app_id = input("Enter app id: ").strip()
+    app_id = input("\nEnter app id: ").strip()
 
-    temporary_data = selected_account.get("Temporary", {})
-    temporary_password = temporary_data.get("Temporary Password")
-    expiration_time_str = temporary_data.get("Expires At")
-
-    if temporary_password and expiration_time_str:
-        expiration_time = datetime.strptime(expiration_time_str, "%Y-%m-%d %H:%M:%S")
-        if datetime.now() < expiration_time:
-            print("Using temporary password for download.")
-        else:
-            print("Temporary password has expired.")
-            temporary_password = None
-
-    if two_factor_enabled.lower() == 'yes' and not temporary_password:
-        print("\nFetching 2FA code...")
-        command = [
-            'python', IPATOOL_PATH, 'download',
-            '-i', '0',
-            '-e', apple_id,
-            '-p', password
-        ]
-        run_command(command)
-        time.sleep(5)
-
-        two_factor_code = input("Enter the 2FA code: ")
-        temporary_password = f"{password}{two_factor_code}"
-
-        selected_account['Temporary'] = {
-            'Temporary Password': temporary_password,
-            'Expires At': (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
-        }
-        save_account_to_file(selected_account, f"account{account_number}.json")
-        print("2FA code entered. Temporary password is valid for 24 hours.")
-
-    if not temporary_password:
-        temporary_password = password
+    # important for 2fa, yes
+    if two_factor_enabled.lower() == 'yes':
+        subprocess.run([python, 'ipatool-main/2fa.py', '-a', str(account_number)])
+        # get updated password (2fa password)
+        with open(os.path.join(SAVED_DIR, account_file)) as f:
+            updated_account = json.load(f)
+        password = updated_account.get("2fa_password", password)
 
     print(f"\nDownloading app with app id {app_id}...")
+    output_dir = os.path.join(SCRIPT_DIR, 'saved', str(app_id))
+    os.makedirs(output_dir, exist_ok=True)
     command = [
-        'python', IPATOOL_PATH, 'download',
+        python, IPATOOL_PATH, 'download',
         '-i', app_id,
         '-e', apple_id,
-        '-p', temporary_password
+        '-p', password,
+        '-o', output_dir
     ]
     run_command(command)
 
 def list_accounts():
+    # Always list from accounts folder
     account_files = [f for f in os.listdir(SAVED_DIR) if f.startswith('account') and f.endswith('.json')]
     account_files = sorted(account_files)
     accounts = []
@@ -299,20 +296,136 @@ def list_accounts():
         accounts.append((i, file, data))
     return accounts
 
+def expert_download():
+    os.system(clear)
+    print(f"iPATool-EZ v{version} by 1Emilis (based on iPATool-PY)")
+    print("\n# Select account:")
+    accounts = list_accounts()
+    if not accounts:
+        print("No accounts available.")
+        return
+    try:
+        account_number = int(input("\nEnter account number: "))
+        selected_account = accounts[account_number - 1][2]
+        account_file = accounts[account_number - 1][1]
+    except (ValueError, IndexError):
+        print("Invalid account number.")
+        return
+
+    apple_id = selected_account["Apple ID"]
+    password = selected_account["Password"]
+    two_factor_enabled = selected_account["2FA Enabled"]
+    os.system(clear)
+    print(f"iPATool-EZ v{version} by 1Emilis (based on iPATool-PY)")
+    print(f"\nSelected Apple ID: {apple_id}")
+    print(f"2FA Enabled: {two_factor_enabled}")
+
+    app_id = input("\nEnter app id: ").strip()
+
+    # Call downgrade plugin with -action downgrade
+    downgrade_plugin_dir = os.path.join('ipatool-plugins', 'root7.1emilis.downgrade')
+    main_py = os.path.join(downgrade_plugin_dir, 'main.py')
+    if not (os.path.isdir(downgrade_plugin_dir) and os.path.isfile(main_py)):
+        print("The downgrade plugin (root7.1emilis.downgrade) is not installed.")
+        return
+    if debug == "true":
+        subprocess.run([python, main_py, "-action", "downgrade", "-id", app_id, "-account", str(account_number)], check=False)
+    else:
+        subprocess.run([python, main_py, "-action", "downgrade", "-id", app_id, "-account", str(account_number)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+    
+def expert_utility():
+    os.system(clear)
+    print(f"iPATool-EZ v{version} by 1Emilis (based on iPATool-PY)")
+    print("\nExpert Utility")
+    print("1. Expert Download")
+    print("2. Download all app versions (requires lots of storage)")
+    print("3. Get app history")
+    print("4. Return to main menu.")
+    choice = input("Choose an option (1/2/3/4): ")
+
+    # check for downgrade plugin, will be replaced in beta2 
+    downgrade_plugin_dir = os.path.join('ipatool-plugins', 'root7.1emilis.downgrade')
+    main_py = os.path.join(downgrade_plugin_dir, 'main.py')
+    downgradeall_py = os.path.join(downgrade_plugin_dir, 'downgradeall.py')
+    apphistory_py = os.path.join(downgrade_plugin_dir, 'apphistory.py')
+    if not (os.path.isdir(downgrade_plugin_dir) and os.path.isfile(main_py) and os.path.isfile(downgradeall_py) and os.path.isfile(apphistory_py)):
+        print("The downgrade plugin (root7.1emilis.downgrade) is not installed.")
+        return
+
+    if choice == '1':
+        expert_download()
+    elif choice == '2':
+        # Download all app versions (downgradeall)
+        print("\n# Select account:")
+        accounts = list_accounts()
+        if not accounts:
+            print("No accounts available.")
+            return
+        try:
+            account_number = int(input("\nEnter account number: "))
+            selected_account = accounts[account_number - 1][2]
+            account_file = accounts[account_number - 1][1]
+        except (ValueError, IndexError):
+            print("Invalid account number.")
+            return
+        app_id = input("Enter app id: ").strip()
+        if debug == "true":
+            subprocess.run([python, main_py, "-action", "downgradeall", "-id", app_id, "-account", str(account_number)], check=False)
+        else:
+            subprocess.run([python, main_py, "-action", "downgradeall", "-id", app_id, "-account", str(account_number)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+    elif choice == '3':
+        # Get app history (apphistory)
+        print("\n# Select account:")
+        accounts = list_accounts()
+        if not accounts:
+            print("No accounts available.")
+            return
+        try:
+            account_number = int(input("\nEnter account number: "))
+            selected_account = accounts[account_number - 1][2]
+            account_file = accounts[account_number - 1][1]
+        except (ValueError, IndexError):
+            print("Invalid account number.")
+            return
+        app_id = input("Enter app id: ").strip()
+        if debug == "true":
+            subprocess.run([python, main_py, "-action", "apphistory", "-account", str(account_number), "-id", app_id], check=False)
+        else:
+            subprocess.run([python, main_py, "-action", "apphistory", "-account", str(account_number), "-id", app_id], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+    elif choice == '4':
+        os.execv(sys.executable, [sys.executable] + sys.argv)
+    else:
+        print("Invalid option. Please try again.")
+    
+
 if __name__ == "__main__":
+    os.system(clear)
     print(f"iPATool-EZ v{version} by 1Emilis (based on iPATool-PY)")
     print("Warning: Passwords are stored in plain text. Keep this script and the JSON files in a secure location.")
     print("\n1. Download an app")
-    print("2. Create a new account")
-    print("3. Account Utility")
-    print("4. Check for Updates")
-    choice = input("Choose an option (1/2/3/4): ")
+    print("2. Expert Utility")
+    print("3. iPA-Online")
+    print("4. Create a new account")
+    print("5. Account Utility")
+    print("6. Check for Updates")
+    choice = input("Choose an option (1/2/3/4/5/6): ")
 
     if choice == '1':
         download_app()
     elif choice == '2':
-        subprocess.run(['python', 'accountsetup.py'])
+        expert_utility()
     elif choice == '3':
-        account_utility()
+        # iPA-Online plugin, not done lil bro
+        ipaonline_plugin_dir = os.path.join('ipatool-plugins', 'root7.1emilis.ipaonline')
+        ipaonline_main = os.path.join(ipaonline_plugin_dir, 'main.py')
+        if not (os.path.isdir(ipaonline_plugin_dir) and os.path.isfile(ipaonline_main)):
+            print("The iPA-Online plugin (root7.1emilis.ipaonline) is not installed.")
+        else:
+            subprocess.run([python, ipaonline_main])
     elif choice == '4':
-        handle_update()
+        subprocess.run([python, 'accountsetup.py'])
+    elif choice == '5':
+        account_utility()
+    elif choice == '6':
+        handle_update_legacy()
+

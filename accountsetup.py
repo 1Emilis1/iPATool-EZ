@@ -1,5 +1,9 @@
 import os
 import json
+import subprocess
+
+# Directory to save account files
+ACCOUNTS_DIR = "accounts"
 
 # Function to save account details to a JSON file
 def save_account_to_file(data, filename):
@@ -8,9 +12,12 @@ def save_account_to_file(data, filename):
     print(f"Account saved in {filename}.")
 
 # Function to check if a filename exists, and create new numbered files if needed
-def get_available_filename(base_name="account", max_accounts=15):
+def get_available_filename(base_name="account", max_accounts=20):
+    # Ensure the accounts directory exists
+    if not os.path.exists(ACCOUNTS_DIR):
+        os.makedirs(ACCOUNTS_DIR)
     for i in range(1, max_accounts + 1):
-        filename = f"{base_name}{i}.json"
+        filename = os.path.join(ACCOUNTS_DIR, f"{base_name}{i}.json")
         if not os.path.exists(filename):
             return filename
     return None
@@ -46,8 +53,9 @@ def account_setup():
 
     if filename:
         save_account_to_file(account_data, filename)
+        subprocess.run(['python', 'ipatool-ez.py'])
     else:
-        print("Account limit reached. You can only save up to 15 accounts.")
+        print("Account limit reached. You can only save up to 20 accounts.")
 
 if __name__ == "__main__":
     account_setup()

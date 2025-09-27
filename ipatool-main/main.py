@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-import json
 import os
 import pickle
 import sys
@@ -21,11 +20,6 @@ import logging
 from rich.logging import RichHandler
 from rich.console import Console
 import rich
-
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-SAVED_DIR = os.path.join(SCRIPT_DIR, '..', 'saved')
-os.makedirs(SAVED_DIR, exist_ok=True)
-
 
 rich.get_console().file = sys.stderr
 if rich.get_console().width < 100:
@@ -168,13 +162,13 @@ class IPATool(object):
         down_p.add_argument('--appVerId', dest='appVerId')
         down_p.add_argument('--purchase', action='store_true')
         down_p.add_argument('--downloadAllVersion', action='store_true')
-        down_p.add_argument('--output-dir', '-o', dest='output_dir', default='saved')
+        down_p.add_argument('--output-dir', '-o', dest='output_dir', default='.')
         down_p.set_defaults(func=self.handleDownload)
 
         his_p = subp.add_parser('historyver')
         his_p.add_argument('--appId', '-i', dest='appId')
         his_p.add_argument('--purchase', action='store_true')
-        his_p.add_argument('--output-dir', '-o', dest='output_dir', default='saved')
+        his_p.add_argument('--output-dir', '-o', dest='output_dir', default='.')
         add_auth_options(his_p)
         his_p.set_defaults(func=self.handleHistoryVersion)
 
@@ -234,12 +228,14 @@ class IPATool(object):
 
     storeClientCache = {}
     def _get_StoreClient(self, args):
+        to_delete = []
         for k, v in self.storeClientCache.items():
             if time.time() - v < 30.0:
                 return k
             else:
-                del self.storeClientCache[k]
-
+                to_delete.append(k)
+        for k in to_delete:
+            self.storeClientCache.pop(k)
         newSess = pickle.loads(pickle.dumps(self.sess))
         Store = StoreClient(newSess)
 
