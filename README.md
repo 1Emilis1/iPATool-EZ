@@ -1,5 +1,7 @@
 # iPATool-EZ (Beta Branch)
 
+# Beta 2 is unstable as of right now. I no longer have an iPhone and I am not that interested in this project anymore. I will still continue to update this project. 1.3 is not coming.
+
 ## Overview
 iPATool-EZ is a user-friendly tool for downloading and managing iOS application packages (IPAs), It's designed to be an easier-to-use version of iPATool-PY, providing a great experience for downloading apps from the App Store, and also for downloading delisted apps (or by other terms shadowbanned apps)
 
