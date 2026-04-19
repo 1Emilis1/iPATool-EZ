@@ -1,8 +1,8 @@
-
 import argparse
 import json
 import os
 import subprocess
+import sys
 
 # identify the os
 if os.name == 'nt':
@@ -19,21 +19,19 @@ else:
 # ignore
 parser = argparse.ArgumentParser(description="its ipatool-ez downgrade stuff")
 
-
 # arguments, dont ignore if you want to add smth
 parser.add_argument("-id", type=int, required=True, help="app ID")
 parser.add_argument("-account", type=int, required=True, help="account number")
 parser.add_argument("-action", choices=["apphistory", "downgrade", "downgradeall"], required=True, help="Action to perform")
+parser.add_argument("-debug", action="store_true", help="Enable debug mode")
 
 # dont touch
 args = parser.parse_args()
 
-
 appid = args.id
 account = args.account
 action = args.action
-
-
+debug_flag = args.debug
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 json_path = os.path.abspath(os.path.join(script_dir, '../../accounts', f'account{account}.json'))
@@ -52,7 +50,6 @@ password = account_data.get("Password")
 two_fa = account_data.get("2FA Enabled")
 country = account_data.get("App Store Country")
 
-
 # Use python_exec for all subprocess calls - this is important for linux and mac users
 # ALWAYS and i mean ALWAYS run 2fa.py first to ensure 2fa_password is set
 subprocess.run([python_exec, twofa_path, "-a", str(account)])
@@ -68,7 +65,7 @@ country = account_data.get("App Store Country")
 twofa_password = account_data.get("2fa_password", password)
 
 # Debug output control
-debug = os.environ.get("IPATOOL_DEBUG", "false").lower() == "true"
+debug = debug_flag or os.environ.get("IPATOOL_DEBUG", "false").lower() == "true"
 
 if action == "apphistory":
     cmd = [
@@ -79,13 +76,17 @@ if action == "apphistory":
         "--password", str(twofa_password)
     ]
     if debug:
+        cmd.append("--debug")
+        # Removed stdout/stderr redirection to let Logger capture it in the console/log
         result = subprocess.run(cmd)
     else:
         result = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    
     if result.returncode != 0:
-        print("apphistory.py failed.")
+        print(f"apphistory.py failed with exit code {result.returncode}.")
         exit(result.returncode)
     exit(0)
+
 elif action == "downgradeall":
     cmd = [
         python_exec, downgradeall_path,
@@ -95,13 +96,16 @@ elif action == "downgradeall":
         "--password", str(twofa_password)
     ]
     if debug:
+        cmd.append("--debug")
         result = subprocess.run(cmd)
     else:
         result = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    
     if result.returncode != 0:
         print("downgradeall.py failed.")
         exit(result.returncode)
     exit(0)
+
 elif action == "downgrade":
     cmd = [
         python_exec, downgrade_path,
@@ -110,10 +114,13 @@ elif action == "downgrade":
         "--email", str(apple_id),
         "--password", str(twofa_password)
     ]
-    # Always run downgrade.py interactively so user can select version
+    if debug:
+        cmd.append("--debug")
+    # Always run downgrade.py interactively so user can select version -- holy yap
     result = subprocess.run(cmd)
     if result.returncode != 0:
         print("downgrade.py failed.")
         exit(result.returncode)
     exit(0)
 # the error model from gmod
+# this is hell im sorry

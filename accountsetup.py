@@ -2,6 +2,18 @@ import os
 import json
 import subprocess
 
+#this code is so old, i really need to fix this
+
+# os
+if os.name == 'nt':
+    clear = 'cls'
+    python = 'python'
+    operatingsystem = 'Windows'
+else:
+    clear = 'clear'
+    python = 'python3'
+    operatingsystem = 'Linux/Mac'
+
 # Directory to save account files
 ACCOUNTS_DIR = "accounts"
 
@@ -53,7 +65,7 @@ def account_setup():
 
     if filename:
         save_account_to_file(account_data, filename)
-        subprocess.run(['python', 'ipatool-ez.py'])
+        subprocess.run([python, 'ipatool-ez.py'])
     else:
         print("Account limit reached. You can only save up to 20 accounts.")
 

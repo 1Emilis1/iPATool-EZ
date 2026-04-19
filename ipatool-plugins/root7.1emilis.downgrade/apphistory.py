@@ -1,10 +1,11 @@
-
 import os
 import subprocess
 import zipfile
 import plistlib
 import json
 import shutil
+import sys
+from datetime import datetime
 
 # identify the os
 if os.name == 'nt':
@@ -16,17 +17,45 @@ else:
     python_exec = 'python3'
     operatingsystem = 'Linux/Mac'
 
-def run_ipatool(appid, country, apple_email, apple_pwd, temp_dir):
+# Logger class for debug mode
+class Logger(object):
+    def __init__(self):
+        self.terminal = sys.stdout
+        self.log = open("debug.log", "a", encoding="utf-8")
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+        self.log.flush()
+
+    def flush(self):
+        self.terminal.flush()
+        self.log.flush()
+
+# this script gives me nightmares
+def run_ipatool(appid, country, apple_email, apple_pwd, temp_dir, debug_mode):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     ipatool_main = os.path.abspath(os.path.join(script_dir, '../../ipatool-main/main.py'))
+    
+    # just pls work
     cmd = [
         python_exec, ipatool_main,
-        'lookup', '-i', appid, '-c', country,
-        'download', '-e', apple_email, '-p', apple_pwd, '-o', temp_dir
+        'download',
+        '-i', str(appid),
+        '-c', str(country),
+        '-e', apple_email,
+        '-p', apple_pwd,
+        '-o', temp_dir
     ]
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    
+    if debug_mode:
+        print(f"[DEBUG] Running ipatool core: {' '.join(cmd)}")
+        result = subprocess.run(cmd)
+    else:
+        result = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        
     if result.returncode != 0:
-        raise RuntimeError(f"ipatool failed: {result.stderr}")
+        raise RuntimeError(f"ipatool core failed with exit code {result.returncode}")
     return temp_dir
 
 def ipa_to_zip(ipa_path, zip_path):
@@ -66,14 +95,19 @@ def main():
     parser.add_argument('--country', required=True, help='Country code')
     parser.add_argument('--email', required=True, help='Apple ID email')
     parser.add_argument('--password', required=True, help='Apple ID password')
-    # Remove --output argument, output path will be determined by appid
+    parser.add_argument('--debug', action='store_true', help='Enable debug logging')
     args = parser.parse_args()
+
+    if args.debug:
+        sys.stdout = Logger()
+        sys.stderr = sys.stdout
+
     # i forgot how this works so this script will not be updated for a long time
     temp_dir = 'temp'
     os.makedirs(temp_dir, exist_ok=True)
     zip_path = None
     try:
-        run_ipatool(args.appid, args.country, args.email, args.password, temp_dir)
+        run_ipatool(args.appid, args.country, args.email, args.password, temp_dir, args.debug)
         ipa_files = [f for f in os.listdir(temp_dir) if f.endswith('.ipa')]
         if not ipa_files:
             raise FileNotFoundError('No .ipa file found in temp directory')
@@ -91,6 +125,6 @@ def main():
         save_versions_json(latest, all_versions, output_path)
     finally:
         cleanup([temp_dir] + ([zip_path] if zip_path and os.path.exists(zip_path) else []))
-
+# this is hell bro
 if __name__ == '__main__':
     main()

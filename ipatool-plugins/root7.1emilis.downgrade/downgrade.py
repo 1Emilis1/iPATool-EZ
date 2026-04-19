@@ -1,4 +1,9 @@
 import os
+import sys
+import argparse
+import json
+import subprocess
+from datetime import datetime
 
 # identify the os
 if os.name == 'nt':
@@ -10,10 +15,20 @@ else:
     python_exec = 'python3'
     operatingsystem = 'Linux/Mac'
 
+# Logger class for debug mode
+class Logger(object):
+    def __init__(self):
+        self.terminal = sys.stdout
+        self.log = open("debug.log", "a", encoding="utf-8")
 
-import argparse
-import json
-import subprocess
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+        self.log.flush()
+
+    def flush(self):
+        self.terminal.flush()
+        self.log.flush()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Download a selected version for an app.")
@@ -21,7 +36,12 @@ if __name__ == "__main__":
     parser.add_argument("--country", required=True, help="Country code")
     parser.add_argument("--email", required=True, help="Apple ID email")
     parser.add_argument("--password", required=True, help="Apple ID password (2FA if needed)")
+    parser.add_argument("--debug", action='store_true', help="Enable debug logging")
     args = parser.parse_args()
+
+    if args.debug:
+        sys.stdout = Logger()
+        sys.stderr = sys.stdout
 
     appid = args.appid
     country = args.country
@@ -66,7 +86,9 @@ if __name__ == "__main__":
         '--appVerId', str(selected_verid),
         '-o', output_dir
     ]
-    print("Running command:", ' '.join(map(str, cmd)))
+    if args.debug:
+        print("[DEBUG] Running command:", ' '.join(map(str, cmd)))
+    
     result = subprocess.run(cmd)
     if result.returncode != 0:
         print(f"Failed to download version {selected_verid} for app {appid}.")

@@ -4,6 +4,8 @@ import os
 import argparse
 import time
 
+# DO NOT TOUCH THE SCRIPT, IT IS VERY SHIT BUT SOMEHOW WORKS
+
 if os.name == 'nt':
     # windows
     clear = 'cls'

@@ -15,6 +15,23 @@ import argparse
 import json
 import subprocess
 import os
+import sys
+from datetime import datetime
+
+# Logger class for debug mode
+class Logger(object):
+    def __init__(self):
+        self.terminal = sys.stdout
+        self.log = open("debug.log", "a", encoding="utf-8")
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+        self.log.flush()
+
+    def flush(self):
+        self.terminal.flush()
+        self.log.flush()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Download all versions for an app.")
@@ -22,7 +39,12 @@ if __name__ == "__main__":
     parser.add_argument("--country", required=True, help="Country code")
     parser.add_argument("--email", required=True, help="Apple ID email")
     parser.add_argument("--password", required=True, help="Apple ID password (2FA if needed)")
+    parser.add_argument("--debug", action='store_true', help="Enable debug logging")
     args = parser.parse_args()
+
+    if args.debug:
+        sys.stdout = Logger()
+        sys.stderr = sys.stdout
 
     appid = args.appid
     country = args.country
@@ -52,11 +74,15 @@ if __name__ == "__main__":
             '--appVerId', str(verid),
             '-o', output_dir
         ]
-        print("Running command:", ' '.join(map(str, cmd)))
-        result = subprocess.run(cmd)
+        
+        if args.debug:
+            print("[DEBUG] Running command:", ' '.join(map(str, cmd)))
+            result = subprocess.run(cmd)
+        else:
+            # Hide output if not in debug mode to keep the loop clean
+            result = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            
         if result.returncode != 0:
             print(f"Failed to download version {verid} for app {appid}.")
         else:
             print(f"Downloaded version {verid} for app {appid}.")
-
-
